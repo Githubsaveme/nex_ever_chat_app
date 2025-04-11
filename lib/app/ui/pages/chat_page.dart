@@ -64,7 +64,7 @@ class ChatPage extends StatelessWidget {
                 if (textController.text.isNotEmpty) {
                   controller.selectAnswer(
                     question,
-                    null,
+                    textController.text,
                     customAnswer: textController.text,
                   );
                   textController.clear();
@@ -78,19 +78,19 @@ class ChatPage extends StatelessWidget {
         return Column(
           children: [
             ...?question.options?.map((option) => Obx(() => CheckboxListTile(
-              title: Text(option.option ?? ""),
-              value: selectedCheckboxes.contains(option.option),
-              onChanged: (value) {
-                value == true
-                    ? selectedCheckboxes.add(option.option!)
-                    : selectedCheckboxes.remove(option.option);
-              },
-            ))),
+                  title: Text(option.option ?? ""),
+                  value: selectedCheckboxes.contains(option.option),
+                  onChanged: (value) {
+                    value == true
+                        ? selectedCheckboxes.add(option.option!)
+                        : selectedCheckboxes.remove(option.option);
+                  },
+                ))),
             ElevatedButton(
               onPressed: () {
                 controller.selectAnswer(
                   question,
-                  null,
+                  selectedCheckboxes.join(", "),
                   customAnswer: selectedCheckboxes.join(", "),
                 );
                 selectedCheckboxes.clear();
@@ -102,39 +102,39 @@ class ChatPage extends StatelessWidget {
 
       case 'radio':
         return Obx(() => Column(
-          children: [
-            ...?question.options?.map((option) => RadioListTile<String>(
-              title: Text(option.option ?? ""),
-              value: option.option ?? "",
-              groupValue: selectedRadioOption.value,
-              onChanged: (value) {
-                selectedRadioOption.value = value ?? "";
-                final selected = question.options?.firstWhere(
-                        (e) => e.option == selectedRadioOption.value);
-                controller.selectAnswer(
-                  question,
-                  selected,
-                  customAnswer: selected?.option,
-                );
-                selectedRadioOption.value = '';
-              },
-            )),
-          ],
-        ));
+              children: [
+                ...?question.options?.map((option) => RadioListTile<String>(
+                      title: Text(option.option ?? ""),
+                      value: option.option ?? "",
+                      groupValue: selectedRadioOption.value,
+                      onChanged: (value) {
+                        selectedRadioOption.value = value ?? "";
+                        final selected = question.options?.firstWhere(
+                            (e) => e.option == selectedRadioOption.value);
+                        controller.selectAnswer(
+                          question,
+                          selected,
+                          customAnswer: selected?.option,
+                        );
+                        selectedRadioOption.value = '';
+                      },
+                    )),
+              ],
+            ));
 
       default:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: question.options
-              ?.map((opt) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: ElevatedButton(
-              onPressed: () =>
-                  controller.selectAnswer(question, opt),
-              child: Text(opt.option ?? ""),
-            ),
-          ))
-              .toList() ??
+                  ?.map((opt) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              controller.selectAnswer(question, opt),
+                          child: Text(opt.option ?? ""),
+                        ),
+                      ))
+                  .toList() ??
               [],
         );
     }
@@ -162,4 +162,27 @@ class Bubble extends StatelessWidget {
       ),
     );
   }
+}
+
+void showSuccessDialog() {
+  Get.dialog(
+    AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.done_all, color: Colors.green, size: 64),
+          SizedBox(height: 16),
+          Text("Submitted Successfully!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    ),
+    barrierDismissible: true,
+  );
+
+  Future.delayed(Duration(seconds: 2), () {
+    Get.back(); // Close the dialog
+  });
 }

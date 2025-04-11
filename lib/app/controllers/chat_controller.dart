@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../data/models/q_model.dart';
+import '../ui/pages/chat_page.dart';
 
 class ChatController extends GetxController {
   var questions = <Data>[].obs;
@@ -68,12 +70,14 @@ class ChatController extends GetxController {
           body: json.encode(answer),
         );
 
+        debugPrint("response:--${response.body}");
         if (response.statusCode != 200) {
-          Get.snackbar(
-              "Error", "Submission failed for ${answer['question_id']}");
+
+          debugPrint("Submission failed for ${answer['question_id']}");
         }
       }
       Get.snackbar("Success", "All answers submitted!");
+      showSuccessDialog();
     } catch (e) {
       Get.snackbar("Error", e.toString());
     }
